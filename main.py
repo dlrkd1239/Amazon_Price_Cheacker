@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from pprint import pprint
+from notification import Email
 
 product_url = "https://www.amazon.com/ASUS-Gaming-GeForce-Graphics-DisplayPort/dp/B0BLGQHS53/ref=sr_1_1?crid=R8G0U6ALI73E&keywords=rtx+4080&qid=1687395485&sprefix=rtx+408%2Caps%2C621&sr=8-1"
 header = {
@@ -11,9 +12,16 @@ header = {
 price_can_buy = 1500
 response = requests.get(url=product_url, headers=header)
 soup = BeautifulSoup(response.text, "html.parser")
-price_now = soup.find(name="span", class_="a-offscreen").getText().split("$")[1]
+
+price_now = soup.find(name="span", class_="a-offscreen").getText().split("$")[1].replace(",", "")
+product_title = soup.find(name="span", class_="a-size-large product-title-word-break").getText()
+
+data_to_send = {
+        "product_url" : product_url,
+        "price_now" : price_now,
+        "product_title": product_title
+}
 
 if price_can_buy > float(price_now):
-    pass
-    # send_email
-
+    email = Email()
+    email.send_email(data_to_send)
